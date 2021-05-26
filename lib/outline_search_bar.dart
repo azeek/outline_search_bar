@@ -328,7 +328,7 @@ class _OutlineSearchBarState extends State<OutlineSearchBar>
   Widget _buildLoadingIcon() {
     final clearIcon = widget.loadingWidget == null
         ? Icon(CupertinoIcons.rays,
-            size: 18.0, color: widget.clearButtonIconColor)
+            size: 18.0, color: Colors.black)
         : widget.loadingWidget;
 
     return SizedBox(
@@ -342,7 +342,7 @@ class _OutlineSearchBarState extends State<OutlineSearchBar>
 
   Widget _buildClearButton() {
     final clearIcon =
-        Icon(Icons.clear, size: 18.0, color: Colors.black);
+        Icon(Icons.clear, size: 18.0, color: widget.clearButtonIconColor);
 
     return SizedBox(
       width: _kActionButtonDefaultSize,
