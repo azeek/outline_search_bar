@@ -1,5 +1,6 @@
 library outline_search_bar;
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:simple_text_field/simple_text_field.dart';
 
@@ -10,10 +11,7 @@ const double _kSearchBarMinimumHeight = 48.0;
 const double _kActionButtonDefaultSize = 36.0;
 
 /// Search Button position.
-enum SearchButtonPosition {
-  leading,
-  trailing
-}
+enum SearchButtonPosition { leading, trailing }
 
 /// A widget that implements an outlined search bar.
 class OutlineSearchBar extends StatefulWidget {
@@ -142,44 +140,49 @@ class OutlineSearchBar extends StatefulWidget {
   /// When the search button is pressed, it is called with the entered keyword.
   final ValueChanged<String>? onSearchButtonPressed;
 
-  OutlineSearchBar({
-    Key? key,
-    this.textEditingController,
-    this.keyboardType = TextInputType.text,
-    this.textInputAction = TextInputAction.search,
-    this.maxHeight,
-    this.icon,
-    this.backgroundColor,
-    this.borderColor,
-    this.borderWidth = 1.0,
-    this.borderRadius = const BorderRadius.all(Radius.circular(4.0)),
-    this.margin = const EdgeInsets.only(),
-    this.padding = const EdgeInsets.symmetric(horizontal: 5.0),
-    this.textPadding = const EdgeInsets.symmetric(horizontal: 5.0),
-    this.elevation = 0.0,
-    this.initText,
-    this.hintText,
-    this.textStyle,
-    this.hintStyle,
-    this.maxLength,
-    this.cursorColor,
-    this.cursorWidth = 2.0,
-    this.cursorHeight,
-    this.cursorRadius,
-    this.clearButtonColor = const Color(0xFFDDDDDD),
-    this.clearButtonIconColor = const Color(0xFFFEFEFE),
-    this.searchButtonSplashColor,
-    this.searchButtonIconColor,
-    this.searchButtonPosition = SearchButtonPosition.trailing,
-    this.autoCorrect = false,
-    this.hideSearchButton = false,
-    this.ignoreWhiteSpace = false,
-    this.ignoreSpecialChar = false,
-    this.onTap,
-    this.onKeywordChanged,
-    this.onClearButtonPressed,
-    this.onSearchButtonPressed
-  })  : assert(borderWidth >= 0.0),
+  final bool isLoading;
+  final Widget? loadingWidget;
+
+  OutlineSearchBar(
+      {Key? key,
+      this.textEditingController,
+      this.keyboardType = TextInputType.text,
+      this.textInputAction = TextInputAction.search,
+      this.maxHeight,
+      this.icon,
+      this.backgroundColor,
+      this.borderColor,
+      this.borderWidth = 1.0,
+      this.borderRadius = const BorderRadius.all(Radius.circular(4.0)),
+      this.margin = const EdgeInsets.only(),
+      this.padding = const EdgeInsets.symmetric(horizontal: 5.0),
+      this.textPadding = const EdgeInsets.symmetric(horizontal: 5.0),
+      this.elevation = 0.0,
+      this.initText,
+      this.hintText,
+      this.textStyle,
+      this.hintStyle,
+      this.maxLength,
+      this.cursorColor,
+      this.cursorWidth = 2.0,
+      this.cursorHeight,
+      this.cursorRadius,
+      this.clearButtonColor = const Color(0xFFDDDDDD),
+      this.clearButtonIconColor = const Color(0xFFFEFEFE),
+      this.searchButtonSplashColor,
+      this.searchButtonIconColor,
+      this.searchButtonPosition = SearchButtonPosition.trailing,
+      this.autoCorrect = false,
+      this.hideSearchButton = false,
+      this.ignoreWhiteSpace = false,
+      this.ignoreSpecialChar = false,
+      this.onTap,
+      this.onKeywordChanged,
+      this.onClearButtonPressed,
+      this.onSearchButtonPressed,
+      this.isLoading = false,
+      this.loadingWidget})
+      : assert(borderWidth >= 0.0),
         assert(elevation >= 0.0),
         assert(cursorWidth >= 0.0),
         super(key: key);
@@ -189,7 +192,8 @@ class OutlineSearchBar extends StatefulWidget {
 }
 
 /// Class to control the state of [OutlineSearchBar].
-class _OutlineSearchBarState extends State<OutlineSearchBar> with TickerProviderStateMixin {
+class _OutlineSearchBarState extends State<OutlineSearchBar>
+    with TickerProviderStateMixin {
   late TextEditingController _textEditingController;
   late AnimationController _animationController;
   late Animation<double> _curvedAnimation;
@@ -201,7 +205,8 @@ class _OutlineSearchBarState extends State<OutlineSearchBar> with TickerProvider
     if (_textEditingController.text.isEmpty && _isShowingClearButton) {
       _isShowingClearButton = false;
       _animationController.reverse();
-    } else if (_textEditingController.text.isNotEmpty && !_isShowingClearButton) {
+    } else if (_textEditingController.text.isNotEmpty &&
+        !_isShowingClearButton) {
       _isShowingClearButton = true;
       _animationController.forward();
     }
@@ -211,24 +216,21 @@ class _OutlineSearchBarState extends State<OutlineSearchBar> with TickerProvider
   void initState() {
     super.initState();
     _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 250),
-      reverseDuration: const Duration(milliseconds: 200)
-    );
+        vsync: this,
+        duration: const Duration(milliseconds: 250),
+        reverseDuration: const Duration(milliseconds: 200));
 
-    _curvedAnimation = CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeIn
-    );
+    _curvedAnimation =
+        CurvedAnimation(parent: _animationController, curve: Curves.easeIn);
 
     _animationController.reverse();
 
-    _textEditingController = widget.textEditingController
-        ?? TextEditingController();
+    _textEditingController =
+        widget.textEditingController ?? TextEditingController();
     _textEditingController.addListener(_textEditingControllerListener);
 
-    if (_textEditingController.text.isEmpty
-        && (widget.initText != null && widget.initText!.isNotEmpty))
+    if (_textEditingController.text.isEmpty &&
+        (widget.initText != null && widget.initText!.isNotEmpty))
       _textEditingController.text = widget.initText!;
   }
 
@@ -247,7 +249,10 @@ class _OutlineSearchBarState extends State<OutlineSearchBar> with TickerProvider
 
     final children = <Widget>[];
     children.add(Expanded(child: _buildTextField()));
-    children.add(FadeTransition(opacity: _curvedAnimation, child: _buildClearButton()));
+
+    children.add(FadeTransition(
+        opacity: _curvedAnimation,
+        child: widget.isLoading ? _buildLoadingIcon() : _buildClearButton()));
 
     if (widget.hideSearchButton == false) {
       if (widget.searchButtonPosition == SearchButtonPosition.leading)
@@ -263,23 +268,19 @@ class _OutlineSearchBarState extends State<OutlineSearchBar> with TickerProvider
         borderRadius: widget.borderRadius,
         color: Colors.transparent,
         child: Container(
-          constraints: BoxConstraints(
-            minWidth: double.infinity,
-            minHeight: _kSearchBarMinimumHeight,
-            maxHeight: widget.maxHeight ?? double.infinity
-          ),
-          padding: widget.padding,
-          decoration: BoxDecoration(
-            color: widget.backgroundColor
-                ?? Theme.of(context).scaffoldBackgroundColor,
-            border: Border.all(
-              color: widget.borderColor ?? _themeColor,
-              width: widget.borderWidth
-            ),
-            borderRadius: widget.borderRadius
-          ),
-          child: Row(children: children)
-        ),
+            constraints: BoxConstraints(
+                minWidth: double.infinity,
+                minHeight: _kSearchBarMinimumHeight,
+                maxHeight: widget.maxHeight ?? double.infinity),
+            padding: widget.padding,
+            decoration: BoxDecoration(
+                color: widget.backgroundColor ??
+                    Theme.of(context).scaffoldBackgroundColor,
+                border: Border.all(
+                    color: widget.borderColor ?? _themeColor,
+                    width: widget.borderWidth),
+                borderRadius: widget.borderRadius),
+            child: Row(children: children)),
       ),
     );
   }
@@ -299,25 +300,23 @@ class _OutlineSearchBarState extends State<OutlineSearchBar> with TickerProvider
       ignoreWhiteSpace: widget.ignoreWhiteSpace,
       ignoreSpecialChar: widget.ignoreSpecialChar,
       decoration: SimpleInputDecoration(
-        icon: widget.icon,
-        hintText: widget.hintText,
-        hintStyle: widget.hintStyle,
-        counterText: '',
-        contentPadding: widget.textPadding,
-        // isDense: true,
-        // removeBorder: true,
-        simpleBorder: true,
-        borderWidth: 0.0,
-        focusedBorderWidth: 0.0,
-        borderColor: Colors.transparent,
-        errorBorderColor: Colors.transparent,
-        focusedBorderColor: Colors.transparent,
-        focusedErrorBorderColor: Colors.transparent
-      ),
+          icon: widget.icon,
+          hintText: widget.hintText,
+          hintStyle: widget.hintStyle,
+          counterText: '',
+          contentPadding: widget.textPadding,
+          // isDense: true,
+          // removeBorder: true,
+          simpleBorder: true,
+          borderWidth: 0.0,
+          focusedBorderWidth: 0.0,
+          borderColor: Colors.transparent,
+          errorBorderColor: Colors.transparent,
+          focusedBorderColor: Colors.transparent,
+          focusedErrorBorderColor: Colors.transparent),
       onTap: widget.onTap,
       onChanged: (String value) {
-        if (widget.onKeywordChanged != null)
-          widget.onKeywordChanged!(value);
+        if (widget.onKeywordChanged != null) widget.onKeywordChanged!(value);
       },
       onSubmitted: (String value) {
         if (widget.onSearchButtonPressed != null)
@@ -326,35 +325,46 @@ class _OutlineSearchBarState extends State<OutlineSearchBar> with TickerProvider
     );
   }
 
+  Widget _buildLoadingIcon() {
+    final clearIcon = widget.loadingWidget == null
+        ? Icon(CupertinoIcons.rays,
+            size: 18.0, color: widget.clearButtonIconColor)
+        : widget.loadingWidget;
+
+    return SizedBox(
+      width: _kActionButtonDefaultSize,
+      height: _kActionButtonDefaultSize,
+      child: Container(
+          margin: const EdgeInsets.all(6.0),
+          child: clearIcon),
+    );
+  }
+
   Widget _buildClearButton() {
-    final clearIcon = Icon(Icons.clear,
-        size: 18.0, color: widget.clearButtonIconColor);
+    final clearIcon =
+        Icon(Icons.clear, size: 18.0, color: widget.clearButtonIconColor);
 
     return SizedBox(
       width: _kActionButtonDefaultSize,
       height: _kActionButtonDefaultSize,
       child: InkWell(
-        splashColor: Colors.transparent,
-        hoverColor: Colors.transparent,
-        focusColor: Colors.transparent,
-        highlightColor: Colors.transparent,
-        child: Container(
-          margin: const EdgeInsets.all(6.0),
-          decoration: BoxDecoration(
-            color: widget.clearButtonColor,
-            borderRadius: BorderRadius.circular(clearIcon.size!)
-          ),
-          child: clearIcon
-        ),
-        onTap: () async {
-          if (widget.onClearButtonPressed != null)
-            widget.onClearButtonPressed!(_textEditingController.text);
+          splashColor: Colors.transparent,
+          hoverColor: Colors.transparent,
+          focusColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          child: Container(
+              margin: const EdgeInsets.all(6.0),
+              decoration: BoxDecoration(
+                  color: widget.clearButtonColor,
+                  borderRadius: BorderRadius.circular(clearIcon.size!)),
+              child: clearIcon),
+          onTap: () async {
+            if (widget.onClearButtonPressed != null)
+              widget.onClearButtonPressed!(_textEditingController.text);
 
-          await Future.microtask(_textEditingController.clear);
-          if (widget.onKeywordChanged != null)
-            widget.onKeywordChanged!('');
-        }
-      ),
+            await Future.microtask(_textEditingController.clear);
+            if (widget.onKeywordChanged != null) widget.onKeywordChanged!('');
+          }),
     );
   }
 
@@ -368,16 +378,15 @@ class _OutlineSearchBarState extends State<OutlineSearchBar> with TickerProvider
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          splashColor: widget.searchButtonSplashColor,
-          borderRadius: BorderRadius.circular(searchIcon.size!),
-          child: searchIcon,
-          onTap: () {
-            if (widget.onSearchButtonPressed != null) {
-              FocusScope.of(context).requestFocus(FocusNode());
-              widget.onSearchButtonPressed!(_textEditingController.text);
-            }
-          }
-        ),
+            splashColor: widget.searchButtonSplashColor,
+            borderRadius: BorderRadius.circular(searchIcon.size!),
+            child: searchIcon,
+            onTap: () {
+              if (widget.onSearchButtonPressed != null) {
+                FocusScope.of(context).requestFocus(FocusNode());
+                widget.onSearchButtonPressed!(_textEditingController.text);
+              }
+            }),
       ),
     );
   }
