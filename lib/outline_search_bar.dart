@@ -342,7 +342,7 @@ class _OutlineSearchBarState extends State<OutlineSearchBar>
 
   Widget _buildClearButton() {
     final clearIcon =
-        Icon(Icons.clear, size: 18.0, color: widget.clearButtonIconColor);
+        Icon(Icons.clear, size: 18.0, color: Colors.black);
 
     return SizedBox(
       width: _kActionButtonDefaultSize,
